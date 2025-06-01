@@ -28,7 +28,7 @@ MLOPS_TEXT_SUMMARISATION/
 ├── LICENSE
 ├── README.md                       # This file
 └── requirements.txt                # Python dependencies
-
+```
 ## 🔧 CI/CD Pipeline
 
 1. **On push to main branch**:

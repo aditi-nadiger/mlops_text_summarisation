@@ -1,0 +1,7 @@
+streamlit
+bs4
+lxml
+nltk
+spacy
+PyPDF2
+pdfplumber

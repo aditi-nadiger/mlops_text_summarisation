@@ -6,41 +6,81 @@ import re
 import PyPDF2
 import nltk
 import spacy
-from nltk.stem import WordNetLemmatizer 
+from nltk.stem import WordNetLemmatizer
 
-# Download NLTK resources
+import logging
+import os
+
+# Get the absolute path to the directory where app.py resides
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Navigate to the project root (one level up from 'Scripts')
+project_root = os.path.dirname(current_dir)
+# Create a Logs folder in the project root if it doesn't exist
+log_directory = os.path.join(project_root, "Logs")
+os.makedirs(log_directory, exist_ok=True)
+
+# Set the log file path
+log_file_path = os.path.join(log_directory, "app.log")
+
+# Configure logging
+logging.basicConfig(
+    filename=log_file_path,
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] - %(message)s",
+    filemode="a"
+)
+
+logging.info("Logging setup complete. Log file at: %s", log_file_path)
+
+logging.info('🔄 Application has started.')
+
+# 🌟 2. NLTK download
 nltk.download('wordnet')
+logging.info('Downloaded NLTK resources.')
 
-# Initialize NLP tools
+# 🌟 3. Initialize NLP tools
 nlp = spacy.load('en_core_web_sm')
 lemmatizer = WordNetLemmatizer()
 
 st.title("🧠 Text Summarizer")
 st.write("Upload a `.txt`, `.pdf`, enter text manually, or provide a Wikipedia URL.")
 
-# Read txt file
 def file_text(uploaded_file):
-    return uploaded_file.read().decode('utf-8').replace("\n", '')
+    try:
+        content = uploaded_file.read().decode('utf-8').replace("\n", '')
+        logging.info('✅ Text file uploaded and read successfully.')
+        return content
+    except Exception as e:
+        logging.error(f'❌ Error reading text file: {e}')
+        return ""
 
-# Read PDF file
 def pdfReader(uploaded_file):
-    pdfReader = PyPDF2.PdfFileReader(uploaded_file)
-    text = ''
-    for i in range(pdfReader.numPages):
-        page = pdfReader.getPage(i)
-        text += page.extractText()
-    return text
+    try:
+        # Use PdfReader with the new API
+        reader = PyPDF2.PdfReader(uploaded_file)
+        text = ''
+        for page in reader.pages:
+            text += page.extract_text()
+        logging.info('✅ PDF file uploaded and read successfully.')
+        return text
+    except Exception as e:
+        logging.error(f'❌ Error reading PDF file: {e}')
+        return ""
 
-# Scrape Wikipedia text
+
 def wiki_text(url):
-    scrap_data = urllib.request.urlopen(url)
-    article = scrap_data.read()
-    parsed_article = bs.BeautifulSoup(article, 'lxml')
-    paragraphs = parsed_article.find_all('p')
-    article_text = "".join([re.sub(r'\[[0-9]*\]', '', p.text) for p in paragraphs])
-    return article_text
+    try:
+        scrap_data = urllib.request.urlopen(url)
+        article = scrap_data.read()
+        parsed_article = bs.BeautifulSoup(article, 'lxml')
+        paragraphs = parsed_article.find_all('p')
+        article_text = "".join([re.sub(r'\[[0-9]*\]', '', p.text) for p in paragraphs])
+        logging.info(f'✅ Wikipedia article fetched successfully from: {url}')
+        return article_text
+    except Exception as e:
+        logging.error(f'❌ Error fetching Wikipedia URL: {e}')
+        return ""
 
-# Frequency Matrix
 def frequency_matrix(sentences):
     freq_matrix = {}
     stopWords = nlp.Defaults.stop_words
@@ -109,8 +149,8 @@ def create_summary(sentences, sentence_score, threshold):
             summary += " " + sentence.text
     return summary
 
-# Input section
-option = st.radio("Choose input method:", 
+# 🌟 4. Input section
+option = st.radio("Choose input method:",
     ('Type Text', 'Upload .txt File', 'Upload .pdf File', 'Wikipedia URL'))
 
 text = ""
@@ -127,18 +167,19 @@ elif option == 'Upload .pdf File':
 elif option == 'Wikipedia URL':
     url = st.text_input("Enter Wikipedia URL")
     if url:
-        try:
-            text = wiki_text(url)
-        except:
+        text = wiki_text(url)
+        if not text:
             st.error("Failed to fetch article. Check the URL.")
+            logging.warning(f'⚠️ User entered an invalid or unreachable Wikipedia URL: {url}')
 
 if text:
     st.subheader("Original Text")
     st.write(text[:1000] + "..." if len(text) > 1000 else text)
-    
+    logging.info(f'🔍 Loaded text for summarization. Length: {len(text.split())} words.')
+
     original_words = [w for w in text.split() if w.isalnum()]
     num_words_in_original = len(original_words)
-    
+
     doc = nlp(text)
     sentences = list(doc.sents)
     total_sentences = len(sentences)
@@ -153,10 +194,13 @@ if text:
 
     threshold = 1.3 * avg_score
     summary = create_summary(sentences, sentence_scores, threshold)
-    
+
     st.subheader("🔍 Summary")
     st.success(summary if summary else "Summary is empty. Try reducing threshold or checking input quality.")
-    
+
     st.subheader("📊 Stats")
     st.markdown(f"- Total words in original text: **{num_words_in_original}**")
     st.markdown(f"- Total words in summary: **{len(summary.split())}**")
+
+    logging.info(f'✅ Summary generated. Summary length: {len(summary.split())} words.')
+

@@ -10,21 +10,24 @@
 A powerful text summarization tool that extracts key information from various sources using TF-IDF algorithm, deployed with CI/CD pipelines and MLOps best practices.
 
 ## 🛠️ Project Structure
+
+```text
 MLOPS_TEXT_SUMMARISATION/
-├── .github/workflows
-│   ├── build-push-docker.yml    # Docker build/push automation
-│   ├── render-cd.yml           # Render deployment automation
+├── .github/
+│   └── workflows/
+│       ├── build-push-docker.yml    # Docker build/push automation
+│       └── render-cd.yml            # Render deployment automation
 ├── Logs/
-│   ├── app.log                 # Application logs
+│   └── app.log                     # Application logs
 ├── Scripts/
-│   ├── app.py                  # Main application with logging
-│   ├── Text-Summarizer.py      # Original implementation
-├── venv/                       # Virtual environment
+│   ├── app.py                      # Main application with logging
+│   └── Text-Summarizer.py          # Original implementation
+├── venv/                           # Virtual environment
 ├── .gitignore
-├── Dockerfile                  # Container configuration
+├── Dockerfile                      # Container configuration
 ├── LICENSE
-├── README.md                   # This file
-├── requirements.txt            # Python dependencies
+├── README.md                       # This file
+└── requirements.txt                # Python dependencies
 
 ## 🔧 CI/CD Pipeline
 
@@ -66,22 +69,24 @@ MLOPS_TEXT_SUMMARISATION/
 ### Local Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/MLOPS_TEXT_SUMMARISATION.git
+   git clone https://github.com/aditi-nadiger/mlops_text_summarisation.git
    cd MLOPS_TEXT_SUMMARISATION
 
 2. Create and activate virtual environment:
-    python -m venv venv
-    source venv/bin/activate  # Linux/Mac/Gitbash
-    venv\Scripts\activate     # Windows
-3. Install dependencies:
+   ```bash
+   python -m venv venv
+   # For Linux/Mac/Git Bash:
+   source venv/bin/activate
+   # For Windows:
+   venv\Scripts\activate
 
-    bash
+3. Install dependencies:
+   ```bash
     pip install -r requirements.txt
     python -m spacy download en_core_web_sm
+
 4. Run the application:
 
-    bash
+   ```bash
     streamlit run Scripts/app.py
-
-Access the app at http://localhost:8501
 

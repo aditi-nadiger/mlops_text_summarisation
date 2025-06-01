@@ -203,4 +203,3 @@ if text:
     st.markdown(f"- Total words in summary: **{len(summary.split())}**")
 
     logging.info(f'✅ Summary generated. Summary length: {len(summary.split())} words.')
-

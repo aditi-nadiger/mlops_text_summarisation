@@ -15,7 +15,7 @@ nltk.download('wordnet')
 nlp = spacy.load('en_core_web_sm')
 lemmatizer = WordNetLemmatizer()
 
-st.title("🧠 Text Summarizer using TF-IDF")
+st.title("🧠 Text Summarizer")
 st.write("Upload a `.txt`, `.pdf`, enter text manually, or provide a Wikipedia URL.")
 
 # Read txt file
